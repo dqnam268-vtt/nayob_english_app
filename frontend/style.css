@@ -1,0 +1,85 @@
+/* Reset cơ bản và thiết lập Mobile-first */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #f4f7f6;
+    display: flex;
+    justify-content: center; /* Căn giữa app trên màn hình máy tính */
+}
+
+/* Giới hạn khung hình giống màn hình điện thoại */
+.mobile-container {
+    width: 100%;
+    max-width: 414px; /* Kích thước chuẩn của iPhone Max */
+    min-height: 100vh;
+    background-color: #ffffff;
+    position: relative;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    padding: 20px;
+}
+
+.app-header h1 {
+    text-align: center;
+    font-size: 18px;
+    color: #000;
+    border: 2px solid #4CAF50; /* Viền xanh lá giống thiết kế */
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 30px;
+}
+
+.week-title {
+    font-size: 22px;
+    color: #0c4a6e; /* Xanh ngọc đậm */
+    border: 2px solid #f9a8d4; /* Viền hồng cam */
+    border-radius: 8px;
+    padding: 15px;
+    display: inline-block;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.exercise-btn {
+    display: block;
+    width: 80%;
+    margin: 0 auto 15px auto;
+    padding: 12px;
+    background-color: #fff;
+    border: 2px solid #4CAF50;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.exercise-btn:active {
+    background-color: #e8f5e9;
+    transform: scale(0.98); /* Hiệu ứng nhấn nút trên điện thoại */
+}
+
+.floating-feedback {
+    position: absolute;
+    bottom: 30px;
+    right: 20px;
+}
+
+#feedback-btn {
+    background: none;
+    border: none;
+    font-size: 32px;
+    cursor: pointer;
+}
+
+.app-footer {
+    text-align: center;
+    margin-top: 40px;
+    font-size: 12px;
+    color: #888;
+    padding-bottom: 10px;
+}

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Class App</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="mobile-container">
+        <header class="app-header">
+            <h1>ENGLISH CLASS</h1>
+        </header>
+
+        <main class="course-content">
+            <div class="week-section">
+                <div class="week-title">WEEK 1</div>
+                <button class="exercise-btn">EXERCISE 1</button>
+                <button class="exercise-btn">EXERCISE 2</button>
+            </div>
+
+            <div class="week-section">
+                <div class="week-title">WEEK 2</div>
+                <button class="exercise-btn">EXERCISE 1</button>
+                <button class="exercise-btn">EXERCISE 2</button>
+                <button class="exercise-btn">EXERCISE 3</button>
+            </div>
+        </main>
+
+        <div class="floating-feedback">
+            <button id="feedback-btn">✉️</button>
+        </div>
+
+        <footer class="app-footer">
+            <p>Made by NamY</p>
+        </footer>
+    </div>
+</body>
+</html>

@@ -29,6 +29,13 @@ def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
 # ==========================================
+# API TRANG CHỦ (Tránh lỗi Not Found)
+# ==========================================
+@app.get("/")
+def read_root():
+    return {"message": "Welcome to NamY English App API"}
+
+# ==========================================
 # API ĐĂNG NHẬP
 # ==========================================
 @app.post("/api/login", response_model=schemas.LoginResponse)
@@ -58,6 +65,33 @@ def login(user_data: schemas.UserLogin, db: Session = Depends(get_db)):
         "role": user.role,
         "username": user.username
     }
+
+# ==========================================
+# API TẠO TÀI KHOẢN MỚI (DÀNH CHO ADMIN)
+# ==========================================
+@app.post("/api/register")
+def register_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
+    # 1. Kiểm tra xem tên đăng nhập này đã có ai dùng chưa
+    existing_user = db.query(models.User).filter(models.User.username == user.username).first()
+    if existing_user:
+        raise HTTPException(
+            status_code=400,
+            detail="Tên đăng nhập này đã tồn tại. Vui lòng chọn tên khác!"
+        )
+    
+    # 2. Mã hóa mật khẩu an toàn
+    hashed_password = pwd_context.hash(user.password)
+    
+    # 3. Tạo user mới và lưu vào Database
+    new_user = models.User(
+        username=user.username,
+        password_hash=hashed_password,
+        role=user.role
+    )
+    db.add(new_user)
+    db.commit()
+    
+    return {"status": "success", "message": f"Đã tạo tài khoản '{user.username}' thành công!"}
 
 # ==========================================
 # CÁC API XỬ LÝ BÀI HỌC VÀ TƯƠNG TÁC

@@ -13,8 +13,16 @@ class LoginResponse(BaseModel):
     role: str
     username: str
 
-# ĐỊNH NGHĨA BỊ THIẾU: Dữ liệu nhận form tin nhắn (Feedback) từ học sinh
+# Dữ liệu nhận form tin nhắn (Feedback) từ học sinh
 class FeedbackCreate(BaseModel):
     message: str
     location: str
     user_id: int
+
+# ==========================================
+# THÊM MỚI: Định nghĩa dữ liệu khi tạo tài khoản
+# ==========================================
+class UserCreate(BaseModel):
+    username: str
+    password: str
+    role: str = "student" # Mặc định tài khoản tạo ra là học sinh

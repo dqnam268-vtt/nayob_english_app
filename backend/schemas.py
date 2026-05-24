@@ -12,3 +12,9 @@ class LoginResponse(BaseModel):
     user_id: int
     role: str
     username: str
+
+# ĐỊNH NGHĨA BỊ THIẾU: Dữ liệu nhận form tin nhắn (Feedback) từ học sinh
+class FeedbackCreate(BaseModel):
+    message: str
+    location: str
+    user_id: int

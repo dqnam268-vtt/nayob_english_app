@@ -1,7 +1,68 @@
 // ==========================================
 // CẤU HÌNH API
 // ==========================================
-const API_BASE_URL = "http://127.0.0.1:8000/api"; // Đổi thành URL thật khi đưa lên mạng
+const API_BASE_URL = "https://nayob-english-app.onrender.com"; // Đổi thành URL thật khi đưa lên mạng (VD: URL của Render)
+
+// ==========================================
+// LOGIC ĐĂNG NHẬP (AUTH)
+// ==========================================
+function setupLogin() {
+    const loginBtn = document.getElementById('login-btn');
+    const userValInput = document.getElementById('username');
+    const passValInput = document.getElementById('password');
+    const errorMsg = document.getElementById('login-error');
+
+    if (loginBtn) {
+        loginBtn.addEventListener('click', async () => {
+            const userVal = userValInput.value.trim();
+            const passVal = passValInput.value.trim();
+
+            if (!userVal || !passVal) {
+                errorMsg.innerText = "Vui lòng nhập đầy đủ tài khoản và mật khẩu!";
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            try {
+                // Thay đổi text nút bấm để tạo cảm giác đang tải
+                loginBtn.innerText = "Đang kết nối...";
+                loginBtn.disabled = true;
+
+                const response = await fetch(`${API_BASE_URL}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: userVal, password: passVal })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    // Lưu thông tin học sinh vào bộ nhớ trình duyệt điện thoại
+                    localStorage.setItem('student_id', data.user_id);
+                    localStorage.setItem('student_name', data.username);
+                    
+                    // Chuyển đổi màn hình: Ẩn form login, hiện giao diện bài học
+                    document.getElementById('login-section').style.display = 'none';
+                    document.getElementById('main-app').style.display = 'block';
+                    
+                    // Bắt đầu tải danh sách bài học
+                    fetchCourseData();
+                } else {
+                    errorMsg.innerText = "Sai tên đăng nhập hoặc mật khẩu!";
+                    errorMsg.style.display = 'block';
+                }
+            } catch (error) {
+                console.error("Lỗi đăng nhập:", error);
+                errorMsg.innerText = "Lỗi kết nối đến máy chủ! Vui lòng thử lại.";
+                errorMsg.style.display = 'block';
+            } finally {
+                // Khôi phục trạng thái nút bấm
+                loginBtn.innerText = "Vào Học";
+                loginBtn.disabled = false;
+            }
+        });
+    }
+}
 
 // ==========================================
 // LOGIC HIỂN THỊ (RENDER)
@@ -10,7 +71,7 @@ const API_BASE_URL = "http://127.0.0.1:8000/api"; // Đổi thành URL thật kh
 // Hàm lấy dữ liệu (Fetch) TỪ DATABASE PYTHON
 async function fetchCourseData() {
     try {
-        console.log("Đang kết nối tới Backend...");
+        console.log("Đang kết nối tới Backend để lấy bài học...");
         const response = await fetch(`${API_BASE_URL}/get_syllabus`);
         
         if (!response.ok) throw new Error("Lỗi mạng!");
@@ -20,12 +81,12 @@ async function fetchCourseData() {
         // Nếu DB rỗng, báo cho người dùng biết
         if (data.length === 0) {
             document.querySelector('.course-content').innerHTML = 
-                '<p style="text-align:center; padding:20px;">Chưa có bài học nào. Hãy gọi API /api/seed_data để tạo dữ liệu mẫu.</p>';
+                '<p style="text-align:center; padding:20px;">Chưa có bài học nào. Hãy liên hệ admin để tạo bài học.</p>';
             return;
         }
 
         renderSyllabus(data);
-        console.log("Lấy dữ liệu thành công!", data);
+        console.log("Lấy dữ liệu thành công!");
     } catch (error) {
         console.error("Lỗi khi tải dữ liệu:", error);
         alert("Không thể kết nối đến Backend Python. Đảm bảo server đang chạy ở cổng 8000!");
@@ -35,7 +96,7 @@ async function fetchCourseData() {
 // Hàm vẽ giao diện bài học ra màn hình điện thoại
 function renderSyllabus(weeksData) {
     const mainContent = document.querySelector('.course-content');
-    mainContent.innerHTML = ''; // Xóa dữ liệu cứng trong HTML cũ
+    mainContent.innerHTML = ''; // Xóa dữ liệu tĩnh
 
     weeksData.forEach(week => {
         // 1. Tạo bọc cho Tuần học
@@ -70,7 +131,6 @@ function renderSyllabus(weeksData) {
 
 // Mở danh sách Activity khi bấm vào Exercise
 function openActivities(exerciseTitle, activities) {
-    // Tạm thời hiển thị danh sách bằng alert để test logic
     let activityList = activities.map((act, index) => `Hoạt động ${index + 1}: ${act}`).join('\n');
     alert(`Bạn đang mở: ${exerciseTitle}\n\nDanh sách nhiệm vụ:\n${activityList}\n\n(Hệ thống sẽ mở popup làm bài ở bước sau)`);
 }
@@ -85,6 +145,9 @@ function setupFeedbackButton() {
             
             if (userMsg && userMsg.trim() !== "") {
                 try {
+                    // Lấy ID học sinh đã lưu lúc đăng nhập (Mặc định là 1 nếu lỗi)
+                    const studentId = localStorage.getItem('student_id') || 1;
+                    
                     console.log("Đang gửi feedback về backend:", userMsg);
                     
                     // Gọi API POST gửi dữ liệu lên Backend
@@ -96,7 +159,7 @@ function setupFeedbackButton() {
                         body: JSON.stringify({ 
                             message: userMsg, 
                             location: "Màn hình chính App", 
-                            user_id: 1 // Gán cứng user ID = 1 để test luồng dữ liệu
+                            user_id: parseInt(studentId) // Lấy đúng ID của học sinh đang đăng nhập
                         })
                     });
 
@@ -117,9 +180,18 @@ function setupFeedbackButton() {
 // KHỞI CHẠY ỨNG DỤNG
 // ==========================================
 document.addEventListener("DOMContentLoaded", () => {
-    // 1. Tải danh sách bài học từ Database
-    fetchCourseData();
+    // 1. Kích hoạt tính năng Lắng nghe sự kiện Đăng nhập
+    setupLogin();
     
     // 2. Bật nút tính năng Lá thư
     setupFeedbackButton();
+    
+    // Kiểm tra xem trước đó học sinh đã đăng nhập chưa (Tùy chọn nâng cao UI)
+    const savedStudentId = localStorage.getItem('student_id');
+    if (savedStudentId) {
+        // Nếu đã từng đăng nhập, bỏ qua form login và vào thẳng app
+        document.getElementById('login-section').style.display = 'none';
+        document.getElementById('main-app').style.display = 'block';
+        fetchCourseData();
+    }
 });
